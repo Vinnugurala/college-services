@@ -1,0 +1,113 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Payment Gateway - Campus Services{% endblock %}
+
+{% block content %}
+<div class="payment-container" style="max-width: 900px; margin: 2rem auto; display: grid; grid-template-columns: 1fr 350px; gap: 2rem;">
+    <!-- Payment Form -->
+    <div class="card payment-form-card" style="padding: 2.5rem;">
+        <h2 style="margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span style="color: var(--primary-color);">💳</span> Secure Payment
+        </h2>
+        
+        <form id="payment-form" method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444;">Cardholder Name</label>
+                <input type="text" placeholder="John Doe" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444;">Card Number</label>
+                <div style="position: relative;">
+                    <input type="text" placeholder="xxxx xxxx xxxx xxxx" maxlength="19" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; letter-spacing: 2px;">
+                    <div style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); display: flex; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">💳</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444;">Expiry Date</label>
+                    <input type="text" placeholder="MM / YY" maxlength="5" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444;">CVV</label>
+                    <input type="password" placeholder="•••" maxlength="3" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem;">
+                </div>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; display: flex; align-items: flex-start; gap: 0.75rem;">
+                <input type="checkbox" id="save-card" style="margin-top: 0.25rem;">
+                <label for="save-card" style="font-size: 0.9rem; color: #666; line-height: 1.4;">Save this card for faster payments in the future. Your data is encrypted and secure.</label>
+            </div>
+            
+            <button type="submit" id="pay-button" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
+                <span>Pay {{ total_price }}</span>
+                <span id="spinner" style="display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite;"></span>
+            </button>
+            <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: #888;">
+                🔒 SSL Encrypted Payment
+            </p>
+        </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <div class="card" style="padding: 1.5rem;">
+            <h3 style="margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Order Summary</h3>
+            <div style="max-height: 250px; overflow-y: auto;">
+                {% for item_data in cart_items %}
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                    <span>{{ item_data.quantity }}x {{ item_data.item.name }} ({{ item_data.item.price }} each)</span>
+                    <span style="font-weight: bold;">{{ item_data.total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border-color); display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem;">
+                <span>Total</span>
+                <span style="color: var(--primary-color);">{{ total_price }}</span>
+            </div>
+        </div>
+        
+        <div class="card" style="padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+            <h4>Campus Guarantee</h4>
+            <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.9;">Fastest delivery within the campus. Quality food and printing services guaranteed.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    #pay-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+</style>
+
+<script>
+    document.getElementById('payment-form').addEventListener('submit', function(e) {
+        const btn = document.getElementById('pay-button');
+        const spinner = document.getElementById('spinner');
+        const text = btn.querySelector('span');
+        
+        // Prevent multiple submissions
+        if (btn.disabled) return;
+        
+        e.preventDefault();
+        
+        btn.disabled = true;
+        text.innerText = 'Processing...';
+        spinner.style.display = 'inline-block';
+        
+        // Simulate networking delay
+        setTimeout(() => {
+            this.submit();
+        }, 2000);
+    });
+</script>
+{% endblock %}

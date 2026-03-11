@@ -1,0 +1,16 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Session Expired - Campus Services{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 4rem auto; text-align: center;">
+    <h2 style="color: #c62828; margin-bottom: 1rem;">Session Expired</h2>
+    <p style="margin-bottom: 2rem;">Your session token has expired or is invalid. This usually happens if you opened
+        multiple tabs, or used the back button after logging in.</p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+        <a href="{% url 'home' %}" class="btn btn-primary">Go to Home</a>
+    </div>
+</div>
+{% endblock %}

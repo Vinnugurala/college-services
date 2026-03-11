@@ -1,0 +1,93 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Site Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem;">
+    <h2>Site Administrator Dashboard</h2>
+    <p>Overall system statistics and recent activity.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div class="card" style="text-align: center;">
+        <h4 style="color: #666;">Users</h4>
+        <div style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem;">{{ total_users }}</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <h4 style="color: #666;">Canteens</h4>
+        <div style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem;">{{ total_canteens }}</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <h4 style="color: #666;">Xerox Centers</h4>
+        <div style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem;">{{ total_xerox_centers }}</div>
+    </div>
+    <div class="card" style="text-align: center;">
+        <h4 style="color: #666;">Total Orders</h4>
+        <div style="font-size: 2rem; font-weight: bold; margin-top: 0.5rem;">{{ total_food_orders|add:total_xerox_orders }}</div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h3>Recent Food Orders</h3>
+    {% if recent_food_orders %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                <th style="padding: 0.5rem;">ID</th>
+                <th style="padding: 0.5rem;">Student</th>
+                <th style="padding: 0.5rem;">Canteen</th>
+                <th style="padding: 0.5rem;">Status</th>
+                <th style="padding: 0.5rem;">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in recent_food_orders %}
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.5rem;">#{{ order.id }}</td>
+                <td style="padding: 0.5rem;">{{ order.student.username }}</td>
+                <td style="padding: 0.5rem;">{{ order.canteen.name }}</td>
+                <td style="padding: 0.5rem;">{{ order.status }}</td>
+                <td style="padding: 0.5rem;">{{ order.created_at|date:"M d, H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="margin-top: 1rem; color: #666;">No food orders yet.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Recent Xerox Orders</h3>
+    {% if recent_xerox_orders %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                <th style="padding: 0.5rem;">ID</th>
+                <th style="padding: 0.5rem;">Student</th>
+                <th style="padding: 0.5rem;">Center</th>
+                <th style="padding: 0.5rem;">Status</th>
+                <th style="padding: 0.5rem;">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in recent_xerox_orders %}
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.5rem;">#{{ order.id }}</td>
+                <td style="padding: 0.5rem;">{{ order.student.username }}</td>
+                <td style="padding: 0.5rem;">{{ order.center.name }}</td>
+                <td style="padding: 0.5rem;">{{ order.status }}</td>
+                <td style="padding: 0.5rem;">{{ order.created_at|date:"M d, H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="margin-top: 1rem; color: #666;">No xerox orders yet.</p>
+    {% endif %}
+</div>
+
+<div style="margin-top: 2rem; text-align: center;">
+    <a href="{% url 'admin:index' %}" class="btn btn-secondary">Go to Advanced Django Admin</a>
+</div>
+{% endblock %}

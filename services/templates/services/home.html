@@ -1,0 +1,23 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Home - Campus Services{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; padding: 4rem 2rem;">
+    <h1 style="color: var(--primary-color); margin-bottom: 1rem;">Welcome to Campus Services</h1>
+    <p style="font-size: 1.2rem; color: #555; max-width: 600px; margin: 0 auto 2rem;">
+        Your one-stop platform for campus food ordering from canteens and document printing from xerox centers.
+    </p>
+    {% if not user.is_authenticated %}
+    <div>
+        <a href="{% url 'register' %}" class="btn btn-primary"
+            style="font-size: 1.1rem; padding: 0.75rem 1.5rem; margin-right: 1rem;">Get Started</a>
+        <a href="{% url 'login' %}" class="btn btn-secondary"
+            style="font-size: 1.1rem; padding: 0.75rem 1.5rem;">Login</a>
+    </div>
+    {% else %}
+    <a href="{% url 'dashboard' %}" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 1.5rem;">Go to
+        Dashboard</a>
+    {% endif %}
+</div>
+{% endblock %}

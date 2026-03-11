@@ -1,0 +1,17 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Edit Xerox Center{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <h2>Edit Xerox Center Details</h2>
+    <form method="post" style="margin-top: 1.5rem;">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

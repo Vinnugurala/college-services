@@ -1,0 +1,23 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Xerox Centers - Campus Services{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem;">
+    <h2>Available Xerox Centers</h2>
+    <p>Select a xerox center to upload your documents for printing.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+    {% for center in centers %}
+    <div class="card" style="margin-bottom: 0;">
+        <h3>{{ center.name }}</h3>
+        <p style="margin: 0.5rem 0; color: #666;">{{ center.description|truncatewords:20 }}</p>
+        <a href="{% url 'xerox_detail' center.id %}" class="btn btn-primary"
+            style="display: block; text-align: center; margin-top: 1rem;">Select Center</a>
+    </div>
+    {% empty %}
+    <p>No xerox centers available at the moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

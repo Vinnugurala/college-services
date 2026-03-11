@@ -1,0 +1,90 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Register - Campus Services{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="margin-bottom: 1.5rem; text-align: center;">Register an Account</h2>
+    <form method="post" id="registerForm">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+        <div class="alert alert-error"
+            style="background-color: #ffebee; color: #c62828; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div style="margin-bottom: 1.5rem;">
+            <h3>User Information</h3>
+            {% for field in form %}
+            <div style="margin-bottom: 1rem;">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                <div style="color: #c62828; font-size: 0.85rem; margin-top: 0.25rem;">
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div id="studentFields"
+            style="display: none; margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee;">
+            <h3>Student Details</h3>
+            {% if profile_form.non_field_errors %}
+            <div class="alert alert-error"
+                style="background-color: #ffebee; color: #c62828; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                {{ profile_form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            {% for field in profile_form %}
+            <div style="margin-bottom: 1rem;">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}
+                <div style="color: #c62828; font-size: 0.85rem; margin-top: 0.25rem;">
+                    {{ field.errors }}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Register</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const roleSelect = document.getElementById('id_role');
+        const studentFields = document.getElementById('studentFields');
+
+        function toggleStudentFields() {
+            const inputs = studentFields.querySelectorAll('input');
+            const isStudent = roleSelect && roleSelect.value === 'student';
+            
+            if (isStudent) {
+                studentFields.style.display = 'block';
+                inputs.forEach(input => {
+                    input.required = true;
+                    input.disabled = false;
+                });
+            } else {
+                studentFields.style.display = 'none';
+                inputs.forEach(input => {
+                    input.required = false;
+                    input.disabled = true; // Also disable to prevent them from being sent
+                    input.value = ''; // Clear values
+                });
+            }
+        }
+
+        if (roleSelect) {
+            roleSelect.addEventListener('change', toggleStudentFields);
+            toggleStudentFields(); // initial run
+        }
+    });
+</script>
+{% endblock %}

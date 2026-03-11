@@ -1,0 +1,38 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Virtual Environment
+venv/
+env/
+.env
+.venv/
+env.bak/
+venv.bak/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+.env
+media/
+__pycache__/
+db.sqlite3
+database_data.txt
+export_db_boxes.py

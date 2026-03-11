@@ -1,0 +1,100 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Track Order #{{ order.id }} - Campus Services{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 2rem auto; padding: 2.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem;">
+        <div>
+            <h2 style="margin-bottom: 0.5rem;">Order Tracking</h2>
+            <p style="color: #666;">Order ID: <strong>#{{ order.id }}</strong> from <strong>{{ order.canteen.name }}</strong></p>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 0.9rem; color: #888;">Order Date</div>
+            <div style="font-weight: bold;">{{ order.created_at|date:"M d, Y H:i" }}</div>
+        </div>
+    </div>
+
+    {% if order.status == 'Cancelled' %}
+    <div style="background-color: #ffebee; border-left: 5px solid #d32f2f; padding: 1.5rem; border-radius: 4px; margin-bottom: 2rem;">
+        <h3 style="color: #c62828; margin-bottom: 0.5rem;">Order Cancelled</h3>
+        <p>This order has been cancelled and is no longer being processed.</p>
+    </div>
+    {% else %}
+    <!-- Progress Stepper -->
+    <div style="display: flex; justify-content: space-between; position: relative; margin-bottom: 4rem; padding: 0 1rem;">
+        <!-- Background Line -->
+        <div style="position: absolute; top: 15px; left: 0; right: 0; height: 4px; background-color: #e0e0e0; z-index: 1;"></div>
+        <!-- Active Line -->
+        <div style="position: absolute; top: 15px; left: 0; width: {{ progress_percentage }}%; height: 4px; background-color: var(--primary-color); z-index: 2; transition: width 0.5s ease;"></div>
+        
+        {% for status, label in steps %}
+        <div style="position: relative; z-index: 3; text-align: center; width: 100px;">
+            <div style="width: 34px; height: 34px; border-radius: 50%; border: 4px solid white; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.5rem; 
+                {% if forloop.counter0 <= current_step_index %}
+                    background-color: var(--primary-color); color: white; box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+                {% else %}
+                    background-color: #fff; border-color: #e0e0e0; color: #999;
+                {% endif %}
+                transition: all 0.3s ease;">
+                {% if forloop.counter0 < current_step_index %}
+                    ✓
+                {% else %}
+                    {{ forloop.counter }}
+                {% endif %}
+            </div>
+            <div style="font-size: 0.85rem; font-weight: {% if forloop.counter0 == current_step_index %}bold{% else %}normal{% endif %}; color: {% if forloop.counter0 <= current_step_index %}#333{% else %}#999{% endif %};">
+                {{ status }}
+            </div>
+            <div style="font-size: 0.7rem; color: #888; margin-top: 0.25rem;">
+                {{ label }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div style="background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px;">
+        <h4 style="margin-bottom: 1rem; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem;">Order Details</h4>
+        {% for item in order.items.all %}
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+            <span>{{ item.quantity }}x {{ item.menu_item.name }}</span>
+            <span style="font-weight: bold;">{{ item.price }}</span>
+        </div>
+        {% endfor %}
+        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #ddd; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem;">
+            <span>Total Amount</span>
+            <span style="color: var(--primary-color);">{{ order.total_price }}</span>
+        </div>
+    </div>
+
+    <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+        {% if order.status == 'Pending' %}
+        <form method="post" action="{% url 'dashboard' %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="cancel_order" value="1">
+            <input type="hidden" name="order_type" value="food">
+            <input type="hidden" name="order_id" value="{{ order.id }}">
+            <button type="submit" class="btn btn-primary" style="background-color: #d32f2f;">Cancel Order</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function refreshStatus() {
+        fetch('/api/order_status/', { cache: 'no-store' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.food_orders) {
+                    const currentOrder = data.food_orders.find(o => o.id === {{ order.id }});
+                    if (currentOrder && currentOrder.status !== "{{ order.status }}") {
+                        location.reload();
+                    }
+                }
+            });
+    }
+    setInterval(refreshStatus, 10000); // Check every 10 seconds
+</script>
+{% endblock %}

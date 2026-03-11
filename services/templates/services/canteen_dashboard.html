@@ -1,0 +1,150 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Canteen Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem;">
+    <h2>Canteen Owner Dashboard</h2>
+    <p>Manage your food items and view incoming orders.</p>
+</div>
+
+{% if setup_required %}
+<div class="card" style="border-left: 5px solid var(--primary-color); background-color: #f0f7ff; margin-bottom: 2rem;">
+    <h3>Welcome, Canteen Owner!</h3>
+    <p>Your account has been created successfully. To start managing your canteen:</p>
+    <ul style="margin-top: 1rem; line-height: 1.6;">
+        <li><strong>Step 1:</strong> Wait for the administrator to create your Canteen entry in the system.</li>
+        <li><strong>Step 2:</strong> Once created, you will be able to add menu items and see incoming orders here.</li>
+        <li><strong>Need help?</strong> Please contact the campus administrator to speed up the setup process.</li>
+    </ul>
+</div>
+{% else %}
+<div class="card" style="margin-bottom: 2rem;">
+    <h3>Incoming Orders</h3>
+    {% if orders %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                <th style="padding: 0.5rem;">ID</th>
+                <th style="padding: 0.5rem;">Student</th>
+                <th style="padding: 0.5rem;">Items</th>
+                <th style="padding: 0.5rem;">Total</th>
+                <th style="padding: 0.5rem;">Status</th>
+                <th style="padding: 0.5rem;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 0.5rem;">#{{ order.id }}</td>
+                <td style="padding: 0.5rem;">
+                    <div style="font-weight: bold; margin-bottom: 0.25rem;">{{ order.student.username }}</div>
+                    <div style="font-size: 0.85rem; color: #555;">
+                        <div title="Phone">📞 {{ order.student.phone_number|default:"N/A" }}</div>
+                        <div style="color: var(--primary-color); font-weight: bold; margin-top: 0.25rem;">
+                            {% if order.student.student_profile %}
+                                🏠 {{ order.student.student_profile.hostel_name }} - Room {{ order.student.student_profile.room_number }}
+                            {% else %}
+                                🏠 No profile found
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td style="padding: 0.5rem;">
+                    <ul style="margin: 0; padding-left: 1rem;">
+                        {% for item in order.items.all %}
+                        <li>{{ item.quantity }}x {{ item.menu_item.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td style="padding: 0.5rem;">{{ order.total_price }}</td>
+                <td style="padding: 0.5rem;">
+                    <span id="order-status-{{ order.id }}"
+                        style="background-color: #e0f7fa; color: #006064; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">{{
+                        order.status }}</span>
+                </td>
+                <td style="padding: 0.5rem;">
+                    <form method="post" style="display: flex; gap: 0.5rem;">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_order" value="1">
+                        <input type="hidden" name="order_id" value="{{ order.id }}">
+                        <select name="status" id="select-status-{{ order.id }}"
+                            style="padding: 0.2rem; border-radius: 4px; border: 1px solid var(--border-color);">
+                            {% for key, value in status_choices %}
+                            <option value="{{ key }}" {% if order.status == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary"
+                            style="padding: 0.2rem 0.5rem; font-size: 0.9rem;">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="margin-top: 1rem; color: #666;">No new orders yet.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <a href="{% url 'add_menu_item' %}" class="btn btn-primary">Add New Menu Item</a>
+        <a href="{% url 'edit_canteen' %}" class="btn btn-secondary">Edit Canteen Details</a>
+    </div>
+
+    {% if menu_items %}
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        {% for item in menu_items %}
+        <div style="border: 1px solid var(--border-color); padding: 1rem; border-radius: 4px; text-align: center;">
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}"
+                style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 0.5rem;">
+            {% else %}
+            <div
+                style="width: 100%; height: 120px; background-color: #eee; border-radius: 4px; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8rem;">
+                No Image
+            </div>
+            {% endif %}
+            <h4 style="margin: 0.5rem 0;">{{ item.name }}</h4>
+            <p style="color: var(--primary-dark); font-weight: bold; margin: 0.5rem 0;">{{ item.price }}</p>
+            {% if item.is_available %}
+            <p style="color: green; font-size: 0.9rem;">Available</p>
+            {% else %}
+            <p style="color: red; font-size: 0.9rem;">Unavailable</p>
+            {% endif %}
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center;">
+                <a href="{% url 'edit_menu_item' item.id %}" class="btn btn-secondary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem;">Edit</a>
+                <a href="{% url 'delete_menu_item' item.id %}" class="btn btn-primary" style="padding: 0.2rem 0.5rem; font-size: 0.8rem; background-color: #d32f2f;">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="margin-top: 1rem;">Your menu items will appear here.</p>
+    {% endif %}
+</div>
+
+<script>
+    function fetchOrderStatus() {
+        fetch('/api/order_status/', { cache: 'no-store' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.orders) {
+                    data.orders.forEach(order => {
+                        const statusSpan = document.getElementById('order-status-' + order.id);
+                        if (statusSpan && statusSpan.innerText !== order.status) {
+                            statusSpan.innerText = order.status;
+                            const selectBox = document.getElementById('select-status-' + order.id);
+                            if (selectBox) selectBox.value = order.status;
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching order status:', error));
+    }
+    setInterval(fetchOrderStatus, 5000);
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Print at {{ center.name }} - Campus Services{% endblock %}
+
+{% block content %}
+<div class="dashboard-header"
+    style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h2>{{ center.name }}</h2>
+        <p>{{ center.description }}</p>
+    </div>
+    <a href="{% url 'xerox_list' %}" class="btn btn-secondary">&larr; Back to Centers</a>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h3 style="margin-bottom: 1.5rem;">Upload Document</h3>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div style="margin-bottom: 1.5rem;">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Printing Request</button>
+    </form>
+</div>
+{% endblock %}

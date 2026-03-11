@@ -1,0 +1,59 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Your Cart - Campus Services{% endblock %}
+
+{% block content %}
+<div class="dashboard-header" style="margin-bottom: 2rem;">
+    <h2>Your Cart</h2>
+    <p>Review your food items before placing the order.</p>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    {% if cart_items %}
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+        <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                <th style="padding: 1rem;">Item</th>
+                <th style="padding: 1rem;">Canteen</th>
+                <th style="padding: 1rem;">Price</th>
+                <th style="padding: 1rem;">Quantity</th>
+                <th style="padding: 1rem;">Calculation</th>
+                <th style="padding: 1rem;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item_data in cart_items %}
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 1rem;">{{ item_data.item.name }}</td>
+                <td style="padding: 1rem;">{{ item_data.item.canteen.name }}</td>
+                <td style="padding: 1rem;">{{ item_data.item.price }}</td>
+                <td style="padding: 1rem;">{{ item_data.quantity }}</td>
+                <td style="padding: 1rem;">{{ item_data.item.price }} x {{ item_data.quantity }}</td>
+                <td style="padding: 1rem; font-weight: bold;">{{ item_data.item_total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" style="padding: 1rem; text-align: right; font-weight: bold; font-size: 1.2rem;">Total Amount:</td>
+                <td style="padding: 1rem; font-weight: bold; font-size: 1.2rem; color: var(--primary-dark);">{{ total_price }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <a href="{% url 'canteen_list' %}" class="btn btn-secondary">&larr; Continue Ordering</a>
+        <form method="post" action="{% url 'checkout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Place
+                Order</button>
+        </form>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 2rem;">
+        <p style="font-size: 1.2rem; color: #666; margin-bottom: 1rem;">Your cart is currently empty.</p>
+        <a href="{% url 'canteen_list' %}" class="btn btn-primary">Browse Canteens</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
